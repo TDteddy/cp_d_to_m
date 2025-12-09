@@ -108,8 +108,8 @@ python main.py
 ### 월별 보고서 (쿠팡)
 
 - 옵션명
-- 매출(원)
-- 판매량
+- 매출(원) - 총 매출 (취소 포함)
+- 판매량 - 총 판매량 (취소 포함)
 
 ### DB 일별 데이터
 
@@ -117,9 +117,17 @@ python main.py
 - Sales_total_amount_at_sales_report_coupang_2p (총 매출, 취소 포함)
 - Qty_sales_total_at_sales_report_coupang_2p (총 판매량, 취소 포함)
 
-또는:
+폴백 옵션:
 - Sales_net_amount_at_sales_report_coupang_2p (순 매출, 취소 제외)
 - Qty_sales_net_at_sales_report_coupang_2p (순 판매량, 취소 제외)
+
+### 비교 방식
+
+프로그램은 **취소를 포함한 총 매출/판매량**을 기준으로 비교합니다:
+- 월별 보고서의 '매출(원)' ↔ DB의 'Sales_total_amount' (취소 포함)
+- 월별 보고서의 '판매량' ↔ DB의 'Qty_sales_total' (취소 포함)
+
+이를 통해 양쪽 데이터의 일관성을 확인할 수 있습니다.
 
 ## 문제 해결
 

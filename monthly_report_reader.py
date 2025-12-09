@@ -50,6 +50,11 @@ class MonthlyReportReader:
         """
         옵션명별로 매출과 판매량 데이터 추출
 
+        쿠팡 월별 보고서 기준:
+        - 옵션명: 옵션 이름
+        - 매출(원): 총 매출 (취소 포함)
+        - 판매량: 총 판매량 (취소 포함)
+
         Args:
             df: 원본 DataFrame
 
@@ -57,11 +62,12 @@ class MonthlyReportReader:
             pd.DataFrame: 옵션명, 매출, 판매량을 포함한 DataFrame
         """
         # 컬럼명 매핑 (실제 파일의 컬럼명에 맞게 조정)
+        # 매출(원)은 취소를 포함한 총 매출 금액입니다
         column_mapping = {
             '옵션명': 'option_name',
             '옵션 ID': 'option_id',
-            '매출(원)': 'sales_amount',
-            '판매량': 'sales_qty',
+            '매출(원)': 'sales_amount',  # 취소 포함
+            '판매량': 'sales_qty',        # 취소 포함
             '주문': 'orders'
         }
 
