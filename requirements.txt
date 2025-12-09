@@ -1,0 +1,14 @@
+# 데이터 처리
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Excel 파일 처리
+openpyxl>=3.1.0
+
+# DB 연결
+sqlalchemy>=2.0.0
+pymysql>=1.1.0  # MySQL 사용 시
+psycopg2-binary>=2.9.0  # PostgreSQL 사용 시 (필요한 경우 주석 해제)
+
+# 기타
+python-dateutil>=2.8.0

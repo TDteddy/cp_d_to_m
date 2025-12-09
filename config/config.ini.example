@@ -1,0 +1,17 @@
+[DATABASE]
+# DB 종류: mysql, postgresql, sqlite 등
+db_type = mysql
+host = localhost
+port = 3306
+database = sales_db
+username = your_username
+password = your_password
+table_name = daily_sales_report
+
+[PATHS]
+data_dir = data
+output_dir = output
+
+[REPORT]
+# 월별 보고서 파일명 패턴 (예: 월별판매보고서_2024_03.xlsx)
+monthly_report_pattern = *.xlsx
