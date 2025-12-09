@@ -87,9 +87,9 @@ class DBReader:
         옵션명별로 매출과 판매량을 집계
 
         DB 헤더 기준:
-        - Name_c: 옵션명
-        - Sales_total_amount_at_sale: 총 매출
-        - Qty_sall: 판매량 (또는 Sales_n)
+        - Name_option_coupang_at_sales_report_coupang_2p: 옵션명
+        - Sales_net_amount_at_sales_report_coupang_2p: 순 매출 (취소 제외)
+        - Qty_sales_net_at_sales_report_coupang_2p: 순 판매량 (취소 제외)
 
         Args:
             df: 일별 데이터 DataFrame
@@ -100,16 +100,39 @@ class DBReader:
         # 필요한 컬럼 확인
         print(f"DB 컬럼: {df.columns.tolist()}")
 
-        # 컬럼 매핑
-        option_col = 'Name_c' if 'Name_c' in df.columns else 'ID_optic'
-        sales_amount_col = 'Sales_total_amount_at_sale' if 'Sales_total_amount_at_sale' in df.columns else 'Sales_ca'
-        sales_qty_col = 'Qty_sall' if 'Qty_sall' in df.columns else 'Sales_n'
+        # 컬럼 매핑 - 실제 쿠팡 DB 컬럼명
+        option_col = None
+        sales_amount_col = None
+        sales_qty_col = None
 
-        # 필요한 컬럼이 없으면 에러
-        required_cols = [option_col, sales_amount_col, sales_qty_col]
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            raise ValueError(f"필수 컬럼이 없습니다: {missing_cols}")
+        # 옵션명 컬럼 찾기
+        if 'Name_option_coupang_at_sales_report_coupang_2p' in df.columns:
+            option_col = 'Name_option_coupang_at_sales_report_coupang_2p'
+        elif 'ID_option_coupang_2p_at_sales_report_coupang_2p' in df.columns:
+            option_col = 'ID_option_coupang_2p_at_sales_report_coupang_2p'
+        else:
+            raise ValueError("옵션명 컬럼을 찾을 수 없습니다.")
+
+        # 매출 컬럼 찾기 (순 매출 우선, 없으면 총 매출)
+        if 'Sales_net_amount_at_sales_report_coupang_2p' in df.columns:
+            sales_amount_col = 'Sales_net_amount_at_sales_report_coupang_2p'
+        elif 'Sales_total_amount_at_sales_report_coupang_2p' in df.columns:
+            sales_amount_col = 'Sales_total_amount_at_sales_report_coupang_2p'
+        else:
+            raise ValueError("매출 컬럼을 찾을 수 없습니다.")
+
+        # 판매량 컬럼 찾기 (순 판매량 우선, 없으면 총 판매량)
+        if 'Qty_sales_net_at_sales_report_coupang_2p' in df.columns:
+            sales_qty_col = 'Qty_sales_net_at_sales_report_coupang_2p'
+        elif 'Qty_sales_total_at_sales_report_coupang_2p' in df.columns:
+            sales_qty_col = 'Qty_sales_total_at_sales_report_coupang_2p'
+        else:
+            raise ValueError("판매량 컬럼을 찾을 수 없습니다.")
+
+        print(f"사용 컬럼 매핑:")
+        print(f"  - 옵션명: {option_col}")
+        print(f"  - 매출: {sales_amount_col}")
+        print(f"  - 판매량: {sales_qty_col}")
 
         # 숫자형 변환
         df[sales_amount_col] = pd.to_numeric(df[sales_amount_col], errors='coerce').fillna(0)
