@@ -114,12 +114,12 @@ python main.py
 ### DB 일별 데이터
 
 - Name_option_coupang_at_sales_report_coupang_2p (옵션명)
-- Sales_net_amount_at_sales_report_coupang_2p (순 매출, 취소 제외)
-- Qty_sales_net_at_sales_report_coupang_2p (순 판매량, 취소 제외)
+- Sales_total_amount_at_sales_report_coupang_2p (총 매출, 취소 포함)
+- Qty_sales_total_at_sales_report_coupang_2p (총 판매량, 취소 포함)
 
 또는:
-- Sales_total_amount_at_sales_report_coupang_2p (총 매출)
-- Qty_sales_total_at_sales_report_coupang_2p (총 판매량)
+- Sales_net_amount_at_sales_report_coupang_2p (순 매출, 취소 제외)
+- Qty_sales_net_at_sales_report_coupang_2p (순 판매량, 취소 제외)
 
 ## 문제 해결
 

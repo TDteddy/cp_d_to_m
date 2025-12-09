@@ -88,8 +88,8 @@ class DBReader:
 
         DB 헤더 기준:
         - Name_option_coupang_at_sales_report_coupang_2p: 옵션명
-        - Sales_net_amount_at_sales_report_coupang_2p: 순 매출 (취소 제외)
-        - Qty_sales_net_at_sales_report_coupang_2p: 순 판매량 (취소 제외)
+        - Sales_total_amount_at_sales_report_coupang_2p: 총 매출 (취소 포함)
+        - Qty_sales_total_at_sales_report_coupang_2p: 총 판매량 (취소 포함)
 
         Args:
             df: 일별 데이터 DataFrame
@@ -113,19 +113,19 @@ class DBReader:
         else:
             raise ValueError("옵션명 컬럼을 찾을 수 없습니다.")
 
-        # 매출 컬럼 찾기 (순 매출 우선, 없으면 총 매출)
-        if 'Sales_net_amount_at_sales_report_coupang_2p' in df.columns:
-            sales_amount_col = 'Sales_net_amount_at_sales_report_coupang_2p'
-        elif 'Sales_total_amount_at_sales_report_coupang_2p' in df.columns:
+        # 매출 컬럼 찾기 (총 매출 우선, 없으면 순 매출)
+        if 'Sales_total_amount_at_sales_report_coupang_2p' in df.columns:
             sales_amount_col = 'Sales_total_amount_at_sales_report_coupang_2p'
+        elif 'Sales_net_amount_at_sales_report_coupang_2p' in df.columns:
+            sales_amount_col = 'Sales_net_amount_at_sales_report_coupang_2p'
         else:
             raise ValueError("매출 컬럼을 찾을 수 없습니다.")
 
-        # 판매량 컬럼 찾기 (순 판매량 우선, 없으면 총 판매량)
-        if 'Qty_sales_net_at_sales_report_coupang_2p' in df.columns:
-            sales_qty_col = 'Qty_sales_net_at_sales_report_coupang_2p'
-        elif 'Qty_sales_total_at_sales_report_coupang_2p' in df.columns:
+        # 판매량 컬럼 찾기 (총 판매량 우선, 없으면 순 판매량)
+        if 'Qty_sales_total_at_sales_report_coupang_2p' in df.columns:
             sales_qty_col = 'Qty_sales_total_at_sales_report_coupang_2p'
+        elif 'Qty_sales_net_at_sales_report_coupang_2p' in df.columns:
+            sales_qty_col = 'Qty_sales_net_at_sales_report_coupang_2p'
         else:
             raise ValueError("판매량 컬럼을 찾을 수 없습니다.")
 
