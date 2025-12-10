@@ -29,13 +29,15 @@ class DataComparator:
             suffixes=('_monthly', '_db')
         )
 
-        # NaN 값을 0 또는 빈 문자열로 채우기
+        # 옵션명은 빈 문자열로 채우기
         merged['option_name_monthly'] = merged['option_name_monthly'].fillna('')
         merged['option_name_db'] = merged['option_name_db'].fillna('')
-        merged['sales_amount_monthly'] = merged['sales_amount_monthly'].fillna(0)
-        merged['sales_amount_db'] = merged['sales_amount_db'].fillna(0)
-        merged['sales_qty_monthly'] = merged['sales_qty_monthly'].fillna(0)
-        merged['sales_qty_db'] = merged['sales_qty_db'].fillna(0)
+
+        # 숫자 컬럼을 확실하게 숫자형으로 변환 후 NaN을 0으로 채우기
+        merged['sales_amount_monthly'] = pd.to_numeric(merged['sales_amount_monthly'], errors='coerce').fillna(0)
+        merged['sales_amount_db'] = pd.to_numeric(merged['sales_amount_db'], errors='coerce').fillna(0)
+        merged['sales_qty_monthly'] = pd.to_numeric(merged['sales_qty_monthly'], errors='coerce').fillna(0)
+        merged['sales_qty_db'] = pd.to_numeric(merged['sales_qty_db'], errors='coerce').fillna(0)
 
         # 차이 계산
         merged['sales_amount_diff'] = merged['sales_amount_monthly'] - merged['sales_amount_db']
