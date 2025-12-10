@@ -83,6 +83,9 @@ class MonthlyReportReader:
         if 'option_id' not in result_df.columns:
             raise ValueError("월별 보고서에 '옵션 ID' 컬럼이 없습니다.")
 
+        # 옵션 ID를 문자열로 통일 (DB와의 타입 일치를 위해)
+        result_df['option_id'] = result_df['option_id'].astype(str)
+
         # 옵션명이 없으면 옵션 ID 사용
         if 'option_name' not in result_df.columns:
             result_df['option_name'] = result_df['option_id']

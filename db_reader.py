@@ -139,6 +139,9 @@ class DBReader:
         print(f"  - 매출: {sales_amount_col}")
         print(f"  - 판매량: {sales_qty_col}")
 
+        # 옵션 ID를 문자열로 통일 (월별 보고서와의 타입 일치를 위해)
+        df[option_id_col] = df[option_id_col].astype(str)
+
         # 숫자형 변환
         df[sales_amount_col] = pd.to_numeric(df[sales_amount_col], errors='coerce').fillna(0)
         df[sales_qty_col] = pd.to_numeric(df[sales_qty_col], errors='coerce').fillna(0)
