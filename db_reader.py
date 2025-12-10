@@ -84,9 +84,10 @@ class DBReader:
 
     def extract_option_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        옵션명별로 매출과 판매량을 집계
+        옵션 ID별로 매출과 판매량을 집계
 
         DB 헤더 기준:
+        - ID_option_coupang_2p_at_sales_report_coupang_2p: 옵션 ID
         - Name_option_coupang_at_sales_report_coupang_2p: 옵션명
         - Sales_total_amount_at_sales_report_coupang_2p: 총 매출 (취소 포함)
         - Qty_sales_total_at_sales_report_coupang_2p: 총 판매량 (취소 포함)
@@ -95,23 +96,26 @@ class DBReader:
             df: 일별 데이터 DataFrame
 
         Returns:
-            pd.DataFrame: 옵션명별 집계 데이터
+            pd.DataFrame: 옵션 ID, 옵션명, 매출, 판매량 집계 데이터
         """
         # 필요한 컬럼 확인
         print(f"DB 컬럼: {df.columns.tolist()}")
 
         # 컬럼 매핑 - 실제 쿠팡 DB 컬럼명
-        option_col = None
+        option_id_col = None
+        option_name_col = None
         sales_amount_col = None
         sales_qty_col = None
 
-        # 옵션명 컬럼 찾기
-        if 'Name_option_coupang_at_sales_report_coupang_2p' in df.columns:
-            option_col = 'Name_option_coupang_at_sales_report_coupang_2p'
-        elif 'ID_option_coupang_2p_at_sales_report_coupang_2p' in df.columns:
-            option_col = 'ID_option_coupang_2p_at_sales_report_coupang_2p'
+        # 옵션 ID 컬럼 찾기 (필수)
+        if 'ID_option_coupang_2p_at_sales_report_coupang_2p' in df.columns:
+            option_id_col = 'ID_option_coupang_2p_at_sales_report_coupang_2p'
         else:
-            raise ValueError("옵션명 컬럼을 찾을 수 없습니다.")
+            raise ValueError("옵션 ID 컬럼을 찾을 수 없습니다.")
+
+        # 옵션명 컬럼 찾기 (선택)
+        if 'Name_option_coupang_at_sales_report_coupang_2p' in df.columns:
+            option_name_col = 'Name_option_coupang_at_sales_report_coupang_2p'
 
         # 매출 컬럼 찾기 (총 매출 우선, 없으면 순 매출)
         if 'Sales_total_amount_at_sales_report_coupang_2p' in df.columns:
@@ -130,7 +134,8 @@ class DBReader:
             raise ValueError("판매량 컬럼을 찾을 수 없습니다.")
 
         print(f"사용 컬럼 매핑:")
-        print(f"  - 옵션명: {option_col}")
+        print(f"  - 옵션 ID: {option_id_col}")
+        print(f"  - 옵션명: {option_name_col}")
         print(f"  - 매출: {sales_amount_col}")
         print(f"  - 판매량: {sales_qty_col}")
 
@@ -138,16 +143,29 @@ class DBReader:
         df[sales_amount_col] = pd.to_numeric(df[sales_amount_col], errors='coerce').fillna(0)
         df[sales_qty_col] = pd.to_numeric(df[sales_qty_col], errors='coerce').fillna(0)
 
-        # 옵션명별 집계
-        grouped = df.groupby(option_col).agg({
+        # 옵션 ID별 집계
+        agg_dict = {
             sales_amount_col: 'sum',
             sales_qty_col: 'sum'
-        }).reset_index()
+        }
+
+        # 옵션명이 있으면 첫 번째 값 사용
+        if option_name_col:
+            agg_dict[option_name_col] = 'first'
+
+        grouped = df.groupby(option_id_col).agg(agg_dict).reset_index()
 
         # 컬럼명 통일
-        grouped.columns = ['option_name', 'sales_amount', 'sales_qty']
+        new_columns = ['option_id', 'sales_amount', 'sales_qty']
+        if option_name_col:
+            # option_name을 두 번째 위치로
+            grouped.columns = ['option_id', 'option_name', 'sales_amount', 'sales_qty']
+        else:
+            grouped.columns = new_columns
+            # 옵션명이 없으면 옵션 ID 사용
+            grouped['option_name'] = grouped['option_id']
 
-        print(f"집계된 옵션 수: {len(grouped)}")
+        print(f"DB - 옵션 ID별 집계 완료: {len(grouped)} 개")
 
         return grouped
 

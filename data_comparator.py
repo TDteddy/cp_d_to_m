@@ -11,25 +11,27 @@ class DataComparator:
     @staticmethod
     def compare_data(monthly_df: pd.DataFrame, db_df: pd.DataFrame) -> pd.DataFrame:
         """
-        월별 보고서와 DB 데이터를 비교하여 차이를 계산
+        월별 보고서와 DB 데이터를 옵션 ID 기준으로 비교하여 차이를 계산
 
         Args:
-            monthly_df: 월별 보고서 데이터 (컬럼: option_name, sales_amount, sales_qty)
-            db_df: DB 데이터 (컬럼: option_name, sales_amount, sales_qty)
+            monthly_df: 월별 보고서 데이터 (컬럼: option_id, option_name, sales_amount, sales_qty)
+            db_df: DB 데이터 (컬럼: option_id, option_name, sales_amount, sales_qty)
 
         Returns:
-            pd.DataFrame: 비교 결과 (옵션명, 월별 매출, DB 매출, 매출 차이, 월별 판매량, DB 판매량, 판매량 차이)
+            pd.DataFrame: 비교 결과 (옵션 ID, 양쪽 옵션명, 매출/판매량 비교)
         """
-        # 두 데이터를 옵션명 기준으로 병합
+        # 두 데이터를 옵션 ID 기준으로 병합
         merged = pd.merge(
             monthly_df,
             db_df,
-            on='option_name',
+            on='option_id',
             how='outer',
             suffixes=('_monthly', '_db')
         )
 
-        # NaN 값을 0으로 채우기
+        # NaN 값을 0 또는 빈 문자열로 채우기
+        merged['option_name_monthly'] = merged['option_name_monthly'].fillna('')
+        merged['option_name_db'] = merged['option_name_db'].fillna('')
         merged['sales_amount_monthly'] = merged['sales_amount_monthly'].fillna(0)
         merged['sales_amount_db'] = merged['sales_amount_db'].fillna(0)
         merged['sales_qty_monthly'] = merged['sales_qty_monthly'].fillna(0)
@@ -58,7 +60,9 @@ class DataComparator:
 
         # 컬럼 순서 정리
         result = merged[[
-            'option_name',
+            'option_id',
+            'option_name_monthly',
+            'option_name_db',
             'sales_amount_monthly',
             'sales_amount_db',
             'sales_amount_diff',
@@ -71,7 +75,9 @@ class DataComparator:
 
         # 컬럼명 변경
         result.columns = [
-            '옵션명',
+            '옵션_ID',
+            '월별보고서_옵션명',
+            'DB_옵션명',
             '월별보고서_매출',
             'DB_매출',
             '매출_차이',

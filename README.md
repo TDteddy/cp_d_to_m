@@ -91,7 +91,8 @@ python main.py
 ### 2. 상세 비교 시트
 
 모든 옵션에 대한 상세 비교 결과:
-- 옵션명
+- 옵션_ID
+- 월별보고서_옵션명 / DB_옵션명 (양쪽 출처의 옵션명 비교)
 - 월별보고서_매출 / DB_매출 / 매출_차이 / 매출_차이율(%)
 - 월별보고서_판매량 / DB_판매량 / 판매량_차이 / 판매량_차이율(%)
 
@@ -107,12 +108,14 @@ python main.py
 
 ### 월별 보고서 (쿠팡)
 
+- 옵션 ID - 옵션 고유 식별자
 - 옵션명
 - 매출(원) - 총 매출 (취소 포함)
 - 판매량 - 총 판매량 (취소 포함)
 
 ### DB 일별 데이터
 
+- ID_option_coupang_2p_at_sales_report_coupang_2p (옵션 ID)
 - Name_option_coupang_at_sales_report_coupang_2p (옵션명)
 - Sales_total_amount_at_sales_report_coupang_2p (총 매출, 취소 포함)
 - Qty_sales_total_at_sales_report_coupang_2p (총 판매량, 취소 포함)
@@ -123,11 +126,12 @@ python main.py
 
 ### 비교 방식
 
-프로그램은 **취소를 포함한 총 매출/판매량**을 기준으로 비교합니다:
-- 월별 보고서의 '매출(원)' ↔ DB의 'Sales_total_amount' (취소 포함)
-- 월별 보고서의 '판매량' ↔ DB의 'Qty_sales_total' (취소 포함)
-
-이를 통해 양쪽 데이터의 일관성을 확인할 수 있습니다.
+프로그램은 **옵션 ID를 기준으로** 데이터를 매칭하여 비교합니다:
+- 비교 기준: 옵션 ID (옵션명이 변경되어도 정확한 매칭)
+- 비교 값: 취소를 포함한 총 매출/판매량
+  - 월별 보고서의 '매출(원)' ↔ DB의 'Sales_total_amount' (취소 포함)
+  - 월별 보고서의 '판매량' ↔ DB의 'Qty_sales_total' (취소 포함)
+- 양쪽 출처의 옵션명을 모두 표시하여 이름 변경 확인 가능
 
 ## 문제 해결
 

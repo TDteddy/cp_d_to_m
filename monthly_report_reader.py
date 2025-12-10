@@ -48,9 +48,10 @@ class MonthlyReportReader:
 
     def extract_option_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        옵션명별로 매출과 판매량 데이터 추출
+        옵션 ID별로 매출과 판매량 데이터 추출
 
         쿠팡 월별 보고서 기준:
+        - 옵션 ID: 옵션 고유 식별자
         - 옵션명: 옵션 이름
         - 매출(원): 총 매출 (취소 포함)
         - 판매량: 총 판매량 (취소 포함)
@@ -59,13 +60,13 @@ class MonthlyReportReader:
             df: 원본 DataFrame
 
         Returns:
-            pd.DataFrame: 옵션명, 매출, 판매량을 포함한 DataFrame
+            pd.DataFrame: 옵션 ID, 옵션명, 매출, 판매량을 포함한 DataFrame
         """
         # 컬럼명 매핑 (실제 파일의 컬럼명에 맞게 조정)
         # 매출(원)은 취소를 포함한 총 매출 금액입니다
         column_mapping = {
-            '옵션명': 'option_name',
             '옵션 ID': 'option_id',
+            '옵션명': 'option_name',
             '매출(원)': 'sales_amount',  # 취소 포함
             '판매량': 'sales_qty',        # 취소 포함
             '주문': 'orders'
@@ -78,8 +79,12 @@ class MonthlyReportReader:
             if original_col in df.columns:
                 result_df[new_col] = df[original_col]
 
+        # 옵션 ID가 필수
+        if 'option_id' not in result_df.columns:
+            raise ValueError("월별 보고서에 '옵션 ID' 컬럼이 없습니다.")
+
         # 옵션명이 없으면 옵션 ID 사용
-        if 'option_name' not in result_df.columns and 'option_id' in result_df.columns:
+        if 'option_name' not in result_df.columns:
             result_df['option_name'] = result_df['option_id']
 
         # 매출과 판매량이 숫자형인지 확인
@@ -89,12 +94,16 @@ class MonthlyReportReader:
         if 'sales_qty' in result_df.columns:
             result_df['sales_qty'] = pd.to_numeric(result_df['sales_qty'], errors='coerce').fillna(0)
 
-        # 옵션명별로 그룹화 (중복이 있을 수 있으므로)
-        if 'option_name' in result_df.columns:
-            grouped = result_df.groupby('option_name').agg({
+        # 옵션 ID별로 그룹화 (중복이 있을 수 있으므로)
+        # 옵션명은 첫 번째 값 사용
+        if 'option_id' in result_df.columns:
+            grouped = result_df.groupby('option_id').agg({
+                'option_name': 'first',  # 첫 번째 옵션명 사용
                 'sales_amount': 'sum',
                 'sales_qty': 'sum'
             }).reset_index()
+
+            print(f"월별 보고서 - 옵션 ID별 집계 완료: {len(grouped)} 개")
 
             return grouped
 
