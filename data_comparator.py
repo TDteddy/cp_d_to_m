@@ -20,6 +20,21 @@ class DataComparator:
         Returns:
             pd.DataFrame: 비교 결과 (옵션 ID, 양쪽 옵션명, 매출/판매량 비교)
         """
+        # 디버깅: 옵션 ID 샘플 출력
+        print("\n[디버깅] 옵션 ID 비교:")
+        print(f"월별 보고서 옵션 ID 샘플 (처음 5개):")
+        print(f"  {monthly_df['option_id'].head().tolist()}")
+        print(f"  타입: {monthly_df['option_id'].dtype}")
+        print(f"\nDB 옵션 ID 샘플 (처음 5개):")
+        print(f"  {db_df['option_id'].head().tolist()}")
+        print(f"  타입: {db_df['option_id'].dtype}")
+
+        # 공통 옵션 ID 확인
+        common_ids = set(monthly_df['option_id']) & set(db_df['option_id'])
+        print(f"\n공통 옵션 ID 개수: {len(common_ids)}")
+        if len(common_ids) > 0:
+            print(f"공통 옵션 ID 샘플: {list(common_ids)[:5]}")
+
         # 두 데이터를 옵션 ID 기준으로 병합
         merged = pd.merge(
             monthly_df,
