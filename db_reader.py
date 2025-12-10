@@ -147,28 +147,29 @@ class DBReader:
         df[sales_qty_col] = pd.to_numeric(df[sales_qty_col], errors='coerce').fillna(0)
 
         # 옵션 ID별 집계
-        agg_dict = {
-            sales_amount_col: 'sum',
-            sales_qty_col: 'sum'
-        }
-
-        # 옵션명이 있으면 첫 번째 값 사용
+        # 옵션명을 첫 번째로 넣어서 순서 맞추기
+        agg_dict = {}
         if option_name_col:
             agg_dict[option_name_col] = 'first'
+        agg_dict[sales_amount_col] = 'sum'
+        agg_dict[sales_qty_col] = 'sum'
 
         grouped = df.groupby(option_id_col).agg(agg_dict).reset_index()
 
         # 컬럼명 통일
-        new_columns = ['option_id', 'sales_amount', 'sales_qty']
         if option_name_col:
-            # option_name을 두 번째 위치로
+            # reset_index 후 순서: option_id, option_name, sales_amount, sales_qty
             grouped.columns = ['option_id', 'option_name', 'sales_amount', 'sales_qty']
         else:
-            grouped.columns = new_columns
+            grouped.columns = ['option_id', 'sales_amount', 'sales_qty']
             # 옵션명이 없으면 옵션 ID 사용
             grouped['option_name'] = grouped['option_id']
+            # 컬럼 순서 재정렬
+            grouped = grouped[['option_id', 'option_name', 'sales_amount', 'sales_qty']]
 
         print(f"DB - 옵션 ID별 집계 완료: {len(grouped)} 개")
+        print(f"[디버깅] DB 반환 컬럼 순서: {grouped.columns.tolist()}")
+        print(f"[디버깅] DB 샘플 데이터:\n{grouped.head(2)}")
 
         return grouped
 
